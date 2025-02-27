@@ -1,9 +1,23 @@
-//Christopher Salinas-Sanchez
-//Due March 21
-//File Summary: This file will hold the classes and have prototypes for all methods. No functions should be made in this file.
+#pragma once
+using namespace System;
+using namespace System::Windows::Forms;
+using namespace System::Net;
+using namespace System::Net::Sockets;
+using namespace System::IO;
+using namespace System::Text;
 
-
-//1
+public ref class AccountRecord 
+{
+	//Account record could be for checkings or savings acct.
+public:
+	AccountRecord(int AcctNum); //Initializes the 2 priv members. 
+	double getBalance(); 
+	void SetBalance(double NewAmt); 
+	int getNumber(); 
+private:
+	int AccountNum;
+	double CurrentBalance = 100;
+};
 public ref class CustomerRecord 
 {
 public:
@@ -21,20 +35,6 @@ private:
 	int checkings; //The checkings account number
 	int savings; //The savings acct number
 };
-//2
-public ref class AccountRecord 
-{
-	//Account record could be for checkings or savings acct.
-public:
-	AccountRecord(int AcctNum); //Initializes the 2 priv members. 
-	double getBalance(); 
-	void SetBalance(double NewAmt); 
-	int getNumber(); 
-private:
-	int AccountNum;
-	double CurrentBalance;
-};
-//3
 public ref class BankData 
 {
 public:
@@ -49,7 +49,6 @@ private:
 	array<CustomerRecord^>^ custRecords; //Array that will hold customer records.
 	array<AccountRecord^>^ accntRecords; //Array that will hold account records of customers.
 };
-//4
 public ref class BankAccount
 {
 public:
@@ -66,8 +65,6 @@ private:
 	double CurrentBalance;
 	BankData^ MyBankData;
 };
-
-//5
 public ref class Customer
 {
 public:
@@ -81,19 +78,14 @@ private:
 	BankAccount^ CheckingsAccnt;
 	BankAccount^ SavingsAccnt;
 };
-
-//6
 public interface class BankInterface
 {
 	Customer^ FindCustomer(int CustNum, int pin);
 };
-
-//7
 public ref class Bank : public BankInterface
 {
 public:
-	Bank(array<CustomerRecord^>^ PassedCustRecArr, 
-		array<AccountRecord^>^ PassedAcntRecArr);
+	Bank(array<CustomerRecord^>^ PassedCustRecArr, array<AccountRecord^>^ PassedAcntRecArr);
 	virtual Customer^ FindCustomer(int CustNum, int pin);
 	
 
@@ -104,20 +96,10 @@ private:
 	BankData^ AllBankData;
 	array<Customer^>^ CustomerArr;
 };
-
-//8
-ref class ATM
+public ref class ATM
 {
 private:
-	//New atm variables
-
-	enum class State
-	{
-		Start = 0,
-		Pin = 1,
-		Account = 2,
-		Transaction = 3,
-	}ATMState;
+	//New atm variables	
 
 	int customerPin;
 
@@ -135,7 +117,14 @@ private:
 	BankInterface^ theBank;
 
 public:
-
+	
+	enum class State
+	{
+		Start = 0,
+		Pin = 1,
+		Account = 2,
+		Transaction = 3,
+	}ATMState;
 	//Had to make public...
 	enum class AccountType
 	{
@@ -154,5 +143,49 @@ public:
 	void back();
 	int GetState();
 	void CloseAll(); 
+};
+public ref class Server
+{
+public:
+	Server();
+	void ACK(String^ PassedString);
+	String^ ACKString(String^ PassedString);
+	String^ RepStreamRead();
+
+private:
+	int ServerState;
+	TcpListener^ listener; 
+	TcpClient^ Serclient;
+	NetworkStream^ stream;
+	String^ SavedString;
+	array<Byte>^ receiveBytes;
+
+};
+public ref class Client
+{
+public:
+
+	Client();
+
+	void SendAcctNum(int PassedAcct);
+	void SendPinNum(int PassedPin);
+
+	void GoToSavings();
+	void GoToCheckings();
+
+	void GoBackReq(int State);
+
+	void WithdrawThis(double WDAmt);
+	void DepositThis(double DepAmt);
+
+	void ClientClose();
+	void CloseCliAndSer();
+
+private:
+	
+	//Make sure to check the state of the ATM, save here
+	int ClientState;
+	TcpClient^ client;
+	NetworkStream^ NetStream;
 
 };
